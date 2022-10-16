@@ -69,30 +69,64 @@ const deleteProduct = (req, res) => {
 //? Modificacion parcial
 const patchProduct = (req, res) => {
     const id = req.params.id;
-    const data={
-        name: req.body.name, 
+    const data = {
+        name: req.body.name,
         category: req.body.category,
-        price: req.body.price, 
+        price: req.body.price,
         isAvailable: req.body.isAvailable
     }
     productsControllers.updateProduct(id, data)
-        .then(infoDB =>{
-            if(infoDB){
-                res.status(200).json({message: `Product with id: ${id}, successfully modified`})
-            }else{
-                res.status(400).json({message: 'Invalid Id'})
+        .then(infoDB => {
+            //[0]
+            if (infoDB[0]) {
+                res.status(200).json({ message: `Product with id: ${id}, successfully modified` })
+            } else {
+                res.status(400).json({ message: 'Invalid Id' })
             }
         })
-        .catch(err=>{
-            res.status(400).json({message: err.message})
+        .catch(err => {
+            res.status(400).json({ message: err.message })
         })
 }
 
+
+const putProduct = (req, res) => {
+    const id = req.params.id;
+    const data = {
+        name: req.body.name,
+        category: req.body.category,
+        price: req.body.price,
+        isAvailable: req.body.isAvailable
+    }
+    //? para validar los datos y generar errores 
+    if (data.name && data.category && data.price && data.isAvailable) {
+        productsControllers.updateProduct(id, data)
+            .then(response => {
+                //? si el Id existe o no
+                if (response[0]) {
+                    res.status(200).json({message: `Product with Id: ${id}, succesfully modificated`})
+                } else {
+                    res.status(400).json({message: 'Invalid Id'})
+                }
+            })
+            .catch(err=>{
+                res.status(400).json({message: err.message})
+            })
+    } else {
+        res.status(400).json({message: 'Missing data', fields:{
+            name: 'string',
+            category: 'string',
+            price: 'string ($decimal)',
+            isAvailable: 'bool'
+        }})
+    }
+}
 
 module.exports = {
     postProducts,
     getAllProducts,
     getProductById,
     deleteProduct,
-    patchProduct
+    patchProduct,
+    putProduct
 }
